@@ -35,6 +35,29 @@
 برنامه ریزی مطرح شده در دور قبل را در جومپ پیاده سازی کرده و با سالور
 <div>Ipopt</div>
 حل کردیم. با این تفاوت که در این بخش لامبدا را خودمان به عنوان پارامتر ورودی تایین کردیم.
+</br>
+به طور دقیق تر تابع زیر برای هر ستون ماتریس وی اجرا شد. پارامتر زد هم  توسط تابعی مجزا در هر مرحله محاسبه شد. 
+```
+function opt_vector(S,l,u,z,lambda)
+    model = Model(Ipopt.Optimizer)
+    
+    @variable(model, l[i] <= v[i = 1:r] <= u[i])
+    @variable(model,a[1:r])
+    @variable(model,b[1:m])
+    
+    @constraint(model, a .>= v)
+    @constraint(model, a .>= -v)
+    
+    @constraint(model, b .>= S*v)
+    @constraint(model, b .>= -S*v)
+    
+    
+    @NLobjective(model,Min,sum(sqrt(1+z[i]+a[i]) for i=1:r) + lambda*sum(b[j] for j=1:m))
+    optimize!(model)
+    
+    return JuMP.value.(v)
+  end
+```
 
 ## ⛓️ محدودیت‌ها <a name = "limitations"></a>
 محدودیتی در این بخش وجود ندارد و با نصب
